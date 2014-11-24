@@ -12,7 +12,7 @@ export PATH="$PATH:/usr/local/google_appengine"
 echo "$APP_ENGINE_PASS" > "$WERCKER_STEP_TEMP/password"
 
 echo "cleaning up"
-rm appengine.zip
+rm google_appengine.zip
 find . -name "*.pyc" -exec rm -rf {} \;
 
 echo 'Starting deployment of directory'
