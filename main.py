@@ -1,3 +1,4 @@
+from controllers import status
 import webapp2
 from webapp2_extras import routes
 
@@ -8,6 +9,6 @@ class MainPage(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     routes.PathPrefixRoute('/api/v1', [
-        webapp2.Route('/status', MainPage)
+        webapp2.Route('/status', status.Status)
     ])
 ], debug=True)
