@@ -1,0 +1,40 @@
+box: wercker/python
+# Build definition
+build:
+  # The steps that will be executed on build
+  steps:
+    # A step that sets up the python virtual environment
+    - virtualenv:
+        name: setup virtual environment
+        install_wheel: false # Enable wheel to speed up builds (experimental)
+
+    # # Use this virtualenv step for python 3.2
+    # - virtualenv
+    #     name: setup virtual environment
+    #     python_location: /usr/bin/python3.2
+
+    # A step that executes `pip install` command.
+    - pip-install
+
+    - script:
+        name: app engine sdk
+        code: |
+          sudo apt-get update -qq
+          sudo apt-get install unzip -y
+          curl -s -o google_appengine.zip https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.15.zip
+          sudo unzip -q google_appengine.zip -d /usr/local
+          rm google_appengine.zip
+          export GOOGLE_APPENGINE="/usr/local/google_appengine"
+
+    # A custom script step, name value is used in the UI
+    # and the code value contains the command that get executed
+    - script:
+        name: echo python information
+        code: |
+          echo "python version $(python --version) running"
+          echo "pip version $(pip --version) running"
+
+    - script:
+        name: execute functional tests
+        code: |
+          nosetests -v --with-gae --gae-lib-root=$GOOGLE_APPENGINE ./tests/func
