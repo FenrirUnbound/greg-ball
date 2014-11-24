@@ -35,9 +35,15 @@ build:
           echo "pip version $(pip --version) running"
 
     - script:
+        name: execute unit tests
+        code: |
+          nosetests -v --with-gae --without-sandbox --gae-lib-root=$GOOGLE_APPENGINE ./tests/unit
+
+    - script:
         name: execute functional tests
         code: |
           nosetests -v --with-gae --gae-lib-root=$GOOGLE_APPENGINE ./tests/func
+
 deploy:
   steps:
     - script:
