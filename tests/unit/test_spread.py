@@ -14,25 +14,33 @@ class TestSpread(unittest.TestCase):
         self.testbed.deactivate()
 
     def test_basic(self):
-        test_key = ndb.Key('week', 5)
+        week = 5
+        year = 2014
+        test_key = ndb.Key('week', week)
         data = [
             {
                 'parent': test_key,
                 'game_id': 123,
                 'game_line': 42.5,
-                'game_odds': -3.5
+                'game_odds': -3.5,
+                'week': week,
+                'year': year
             },
             {
                 'parent': test_key,
                 'game_id': 125,
                 'game_line': 37.5,
-                'game_odds': 1.5
+                'game_odds': 1.5,
+                'week': week,
+                'year': year
             },
             {
                 'parent': test_key,
                 'game_id': 130,
                 'game_line': 50.5,
-                'game_odds': -7.5
+                'game_odds': -7.5,
+                'week': week,
+                'year': year
             }
         ]
 
