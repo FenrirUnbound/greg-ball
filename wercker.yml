@@ -27,3 +27,8 @@ build:
         code: |
           echo "python version $(python --version) running"
           echo "pip version $(pip --version) running"
+
+    - script:
+        name: execute functional tests
+        code: |
+          nosetests -v --with-gae ./tests/func
