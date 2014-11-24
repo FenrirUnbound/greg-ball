@@ -40,6 +40,12 @@ build:
           nosetests -v --with-gae --gae-lib-root=$GOOGLE_APPENGINE ./tests/func
 deploy:
   steps:
+    - script:
+        name: pre-requisites
+        code: |
+          sudo apt-get update -qq
+          sudo apt-get install unzip -y
+
     - etre0/appengine-deploy-path-update:
         email: $APP_ENGINE_USER
         password: $APP_ENGINE_PASS
