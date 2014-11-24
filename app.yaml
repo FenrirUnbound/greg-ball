@@ -1,0 +1,9 @@
+application: matsumoto26gregball
+version: 2
+runtime: python27
+api_version: 1
+threadsafe: false
+
+handlers:
+- url: /api/v1/.*
+  script: main.application
