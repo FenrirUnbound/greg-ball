@@ -1,4 +1,4 @@
-from models.spread import Spread
+from models.datastore.spread_ds import SpreadModel
 import unittest
 
 from google.appengine.ext import ndb
@@ -45,9 +45,9 @@ class TestSpread(unittest.TestCase):
         ]
 
         for game in data:
-            Spread(**game).put()
+            SpreadModel(**game).put()
 
-        query = Spread.query(ancestor=test_key).order(-Spread.game_id)
+        query = SpreadModel.query(ancestor=test_key).order(-SpreadModel.game_id)
         result = query.fetch(10)
 
         self.assertEqual(len(result), 3)
