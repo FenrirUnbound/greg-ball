@@ -85,3 +85,41 @@ class TestSpread(unittest.TestCase):
         self.assertEqual(len(result), 3)
         for index, game in enumerate(reversed(data)):
             self.assertEqual(result[index].game_id, game['game_id'])
+
+    def test_generate_key(self):
+        year = 2014
+        week = randint(1, 17)
+        expected_key = ndb.Key('year', year, 'week', week)
+
+        spread_model = SpreadModel()
+        key = spread_model._generate_key(year=year, week=week)
+        self.assertEqual(key, expected_key)
+
+    def test_fetch_spread(self):
+        year = 2014
+        week = randint(1, 17)
+        expected_data = self._prepopulate_datastore(year=year, week=week)
+
+        spread_model = SpreadModel()
+        data = spread_model.fetch_spread(year=year, week=week)
+        self.assertEqual(len(data), len(expected_data))
+
+        for index, expected_game in enumerate(expected_data):
+            game = data[index].to_dict()
+            self.assertEqual(game, expected_game)
+
+    def test_fetch_spread_multiple(self):
+        year = 2014
+        week = randint(1, 17)
+        expected_count = 3
+        expected_data = self._prepopulate_datastore(year=year, week=week, count=expected_count+1)
+
+        spread_model = SpreadModel()
+        data = spread_model.fetch_spread(year=year, week=week, count=expected_count)
+
+        self.assertEqual(len(data), expected_count)
+
+        for index in range(expected_count):
+            expected_game = expected_data[index]
+            game = data[index].to_dict()
+            self.assertEqual(game, expected_game)
