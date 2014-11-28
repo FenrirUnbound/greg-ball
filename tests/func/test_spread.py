@@ -5,9 +5,18 @@ from random import randint
 import unittest
 import webtest
 
+from google.appengine.ext import testbed
+
 class TestSpread(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+
+
+    def tearDown(self):
+        self.testbed.deactivate()
 
 
     def generate_spread_data(self, year=2014, week=0, count=1):
@@ -43,7 +52,7 @@ class TestSpread(unittest.TestCase):
         return result
 
 
-    def test_spread_fetch_week_basic(self):
+    def test_fetch_single_by_week(self):
         year = 2014
         week = randint(1, 17)
         endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(year, week)
@@ -58,3 +67,22 @@ class TestSpread(unittest.TestCase):
         for index, game in enumerate(data['spread']):
             expected_game = test_data[index]
             self.assertEqual(game, expected_game)
+
+
+    def test_fetch_multiple_by_week(self):
+        year = 2014
+        week = randint(1, 17)
+        count = randint(1, 11)
+        endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(year, week)
+        test_data = self.generate_spread_data(year=year, week=week, count=count)
+
+        response = self.app.get(endpoint)
+        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        data = json.loads(response.body)
+        self.assertEqual(len(data['spread']), count)
+        for index, game in enumerate(data['spread']):
+            expected_game = test_data[index]
+            self.assertEqual(game, expected_game)
+
