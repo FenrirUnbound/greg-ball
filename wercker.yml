@@ -42,7 +42,7 @@ build:
     - script:
         name: execute functional tests
         code: |
-          nosetests -v --with-gae --gae-lib-root=$GOOGLE_APPENGINE ./tests/func
+          nosetests -v --with-gae --without-sandbox --gae-lib-root=$GOOGLE_APPENGINE ./tests/func
 
 deploy:
   steps:
