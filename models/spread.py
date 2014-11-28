@@ -1,19 +1,15 @@
-from google.appengine.ext import ndb
+from models.datastore.spread_ds import SpreadModel
 
-class Spread(ndb.Model):
-    """ Datastore model for Spread data
+class Spread(object):
+    def __init__(self, year=1990, week=99):
+        self._datastore = SpreadModel()
+        self._year = year
 
-    week:       game week
-    year:       season
-    game_line:  the game line
-                non-negative floating-point number.
-    game_odds:  the game spread
-                signed floating-point number. Negative numbers ALWAYS infer
-                Home team is favorited; positive numbers ALWAYS infer Away
-                team is favorite
-    """
-    game_id = ndb.IntegerProperty(required=True)
-    week = ndb.IntegerProperty(required=True)
-    year = ndb.IntegerProperty(required=True)
-    game_line = ndb.FloatProperty(indexed=False)
-    game_odds = ndb.FloatProperty(indexed=False)
+    def fetch(self, week=0):
+        result = []
+        data = self._datastore.fetch_spread(year=self._year, week=week, count=20)
+
+        for game in data:
+            result.append(game.to_dict())
+
+        return result

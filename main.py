@@ -1,4 +1,4 @@
-from controllers import status
+from controllers import status, spread
 import webapp2
 from webapp2_extras import routes
 
@@ -9,6 +9,7 @@ class MainPage(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     routes.PathPrefixRoute('/api/v1', [
-        webapp2.Route('/status', status.Status)
+        webapp2.Route('/status', status.Status),
+        webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>', spread.SpreadHandler)
     ])
 ], debug=True)
