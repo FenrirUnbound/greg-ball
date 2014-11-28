@@ -1,4 +1,5 @@
 from models.datastore.spread_ds import SpreadModel
+from random import randint
 import unittest
 
 from google.appengine.ext import ndb
@@ -12,6 +13,37 @@ class TestSpread(unittest.TestCase):
 
     def tearDown(self):
         self.testbed.deactivate()
+
+    def _generate_data(self, year=2014, week=0, count=1):
+        game_id = randint(1000, 9000)
+        result = []
+
+        for i in range(count):
+            data = {
+                'game_id': game_id+count,
+                'game_line': randint(35, 55) + 0.5,
+                'game_odds': randint(-7, 7) + 0.5,
+                'week': week,
+                'year': year
+            }
+            result.append(data)
+
+        return result
+
+    def _prepopulate_datastore(self, year=2014, week=0, count=1):
+        ancestor_key = ndb.Key('year', year, 'week', week)
+        data = self._generate_data(year=year, week=week, count=count)
+
+        for game in data:
+            # Decorate data with ancestor key
+            spread_data = {
+                'parent': ancestor_key
+            }
+            spread_data.update(game)
+
+            SpreadModel(**spread_data).put()
+
+        return data
 
     def test_basic(self):
         week = 5
