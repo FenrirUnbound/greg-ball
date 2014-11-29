@@ -36,6 +36,22 @@ class TestSpread(unittest.TestCase):
 
         return result
 
+    def _prepopulate_datastore(self, year=1990, week=0, count=1):
+        ancestor_key = Spread()._generate_key(year=year, week=week)
+        data = self._generate_data(year=year, week=week, count=count)
+
+        games = []
+        for game in data:
+            # Decorate data with ancestor key
+            spread_data = {
+                'parent': ancestor_key
+            }
+            spread_data.update(game)
+            games.append(SpreadModel(**spread_data))
+
+        ndb.put_multi(entities=games)
+        return data
+
     def test_generate_key(self):
         expected_key = ndb.Key('year', self.year, 'week', self.week)
         key = Spread()._generate_key(year=self.year, week=self.week)
@@ -79,4 +95,15 @@ class TestSpread(unittest.TestCase):
             game = data[index].to_dict()
             self.assertEqual(game, expected_game)
 
+    def test_fetch_spread(self):
+        expected_count = 1
+        test_data = self._prepopulate_datastore(year=self.year, week=self.week, count=expected_count)
+
+        spread = Spread()
+        data = spread.fetch(year=self.year, week=self.week)
+        self.assertEqual(len(data), expected_count)
+
+        for index, game in enumerate(data):
+            expected_game = test_data[index]
+            self.assertEqual(game, expected_game)
 
