@@ -6,8 +6,9 @@ class SpreadHandler(webapp2.RequestHandler):
     def get(self, year, week):
         year = int(year)
         week = int(week)
-        spread = Spread(year=year)
-        spread_data = spread.fetch(week=week)
+
+        spread = Spread()
+        spread_data = spread.fetch(year=year, week=week)
 
         result = {
             'spread': spread_data
@@ -23,8 +24,8 @@ class SpreadHandler(webapp2.RequestHandler):
         param = self.request.POST['spread']
         spread_data = json.loads(param)
 
-        spread = Spread(year=year)
-        result = spread.save(week=week, data=spread_data)
+        spread = Spread()
+        result = spread.save(year=year, week=week, data=spread_data)
 
         self.response.set_status(201)
         self.response.headers['Content-Type'] = 'application/json'
