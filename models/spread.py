@@ -7,10 +7,15 @@ class Spread(object):
         self._datastore = SpreadModel()
         self._year = year
 
-    def fetch(self, week=0):
-        result = []
-        data = self._datastore.fetch_spread(year=self._year, week=week, count=20)
+    def fetch(self, year=None, week=0, max_count=25):
+        # For backwards compatability
+        year = year or self._year
 
+        ancestor_key = self._generate_key(year=year, week=week)
+        query = SpreadModel.query(ancestor=ancestor_key).order(SpreadModel.game_id)
+        data = query.fetch(max_count)
+
+        result = []
         for game in data:
             result.append(game.to_dict())
 
