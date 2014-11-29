@@ -107,3 +107,15 @@ class TestSpread(unittest.TestCase):
             expected_game = test_data[index]
             self.assertEqual(game, expected_game)
 
+    def test_fetch_multiple_spread(self):
+        expected_count = randint(2, 16)
+        test_data = self._prepopulate_datastore(year=self.year, week=self.week, count=expected_count)
+
+        spread = Spread()
+        data = spread.fetch(year=self.year, week=self.week)
+        self.assertEqual(len(data), expected_count)
+
+        for index, game in enumerate(data):
+            expected_game = test_data[index]
+            self.assertEqual(game, expected_game)
+

@@ -18,13 +18,6 @@ class SpreadModel(ndb.Model):
     game_line = ndb.FloatProperty(indexed=False)
     game_odds = ndb.FloatProperty(indexed=False)
 
-    def fetch_spread(self, year, week, count=20):
-        ancestor_key = self._generate_key(year=year, week=week)
-        query = self.query(ancestor=ancestor_key).order(SpreadModel.game_id)
-
-        return query.fetch(count)
-
-
     def _generate_key(self, year, week):
         return ndb.Key('year', year, 'week', week)
 
