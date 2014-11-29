@@ -3,14 +3,10 @@ from google.appengine.ext import ndb
 from models.datastore.spread_ds import SpreadModel
 
 class Spread(object):
-    def __init__(self, year=1990):
-        self._datastore = SpreadModel()
-        self._year = year
+    def __init__(self):
+        pass
 
-    def fetch(self, year=None, week=0, max_count=25):
-        # For backwards compatability
-        year = year or self._year
-
+    def fetch(self, year=1990, week=0, max_count=25):
         ancestor_key = self._generate_key(year=year, week=week)
         query = SpreadModel.query(ancestor=ancestor_key).order(SpreadModel.game_id)
         data = query.fetch(max_count)
@@ -21,10 +17,7 @@ class Spread(object):
 
         return result
 
-    def save(self, year=None, week=0, data=[]):
-        # For backwards compatability
-        year = year or self._year
-
+    def save(self, year=1990, week=0, data=[]):
         parent_key = self._generate_key(year=year, week=week)
 
         to_save = []
