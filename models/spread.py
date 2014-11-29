@@ -13,3 +13,13 @@ class Spread(object):
             result.append(game.to_dict())
 
         return result
+
+    def save(self, week=0, data=[]):
+        to_save = []
+
+        for spread_data in data:
+            game = SpreadModel(**spread_data)
+            to_save.append(game)
+
+        count = SpreadModel.save_spread(year=self._year, week=week, data=to_save)
+        return count
