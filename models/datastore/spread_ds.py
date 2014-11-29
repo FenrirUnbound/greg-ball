@@ -17,10 +17,3 @@ class SpreadModel(ndb.Model):
     year = ndb.IntegerProperty(required=True)
     game_line = ndb.FloatProperty(indexed=False)
     game_odds = ndb.FloatProperty(indexed=False)
-
-    def _generate_key(self, year, week):
-        return ndb.Key('year', year, 'week', week)
-
-    @classmethod
-    def generate_key(cls, year, week):
-        return ndb.Key('year', year, 'week', week)

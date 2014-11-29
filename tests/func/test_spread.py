@@ -1,11 +1,13 @@
 import json
-from models.datastore.spread_ds import SpreadModel
-import main
-from random import randint
 import unittest
 import webtest
+from random import randint
 
 from google.appengine.ext import testbed
+
+import main
+from models.datastore.spread_ds import SpreadModel
+from models.spread import Spread
 
 class TestSpread(unittest.TestCase):
     def setUp(self):
@@ -22,7 +24,7 @@ class TestSpread(unittest.TestCase):
 
 
     def generate_spread_data(self, year=2014, week=0, count=1):
-        ancestor_key = SpreadModel()._generate_key(year=year, week=week)
+        ancestor_key = Spread()._generate_key(year=year, week=week)
         result = self._random_spread_data(year=year, week=week, count=count)
 
         # Load the games into the datastore
@@ -102,8 +104,9 @@ class TestSpread(unittest.TestCase):
         response = self.app.post(endpoint, post_body)
         self.assertEqual(response.status_int, 201)
 
-        key = SpreadModel()._generate_key(year=year, week=week)
-        data = SpreadModel().query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
+        # Check datastore
+        key = Spread()._generate_key(year=year, week=week)
+        data = SpreadModel.query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
         self.assertEqual(len(data), count)
 
         for index, expected_game in enumerate(test_data):
@@ -122,8 +125,9 @@ class TestSpread(unittest.TestCase):
         response = self.app.post(endpoint, post_body)
         self.assertEqual(response.status_int, 201)
 
-        key = SpreadModel()._generate_key(year=self.year, week=self.week)
-        data = SpreadModel().query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
+        # Check datastore
+        key = Spread()._generate_key(year=self.year, week=self.week)
+        data = SpreadModel.query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
         self.assertEqual(len(data), count)
 
         for index, expected_game in enumerate(test_data):
