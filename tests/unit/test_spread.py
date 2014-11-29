@@ -16,6 +16,7 @@ class TestSpread(unittest.TestCase):
 
         self.year = 2014
         self.week = randint(1, 17)
+        self.expected_count = randint(2, 16)
 
     def tearDown(self):
         self.testbed.deactivate()
@@ -26,7 +27,7 @@ class TestSpread(unittest.TestCase):
 
         for i in range(count):
             data = {
-                'game_id': game_id+count,
+                'game_id': game_id+i,
                 'game_line': randint(35, 55) + 0.5,
                 'game_odds': randint(-7, 7) + 0.5,
                 'week': week,
@@ -119,3 +120,64 @@ class TestSpread(unittest.TestCase):
             expected_game = test_data[index]
             self.assertEqual(game, expected_game)
 
+    def test_find_existing_with_all_data(self):
+        test_data = self._prepopulate_datastore(year=self.year, week=self.week, count=self.expected_count)
+
+        spread = Spread()
+        key = spread._generate_key(year=self.year, week=self.week)
+        data = spread._find_existing_entries(key, test_data)
+        self.assertEqual(len(data), self.expected_count)
+
+        for game in test_data:
+            self.assertTrue(game['game_id'] in data)
+
+    def test_find_existing_with_some_data(self):
+        test_data = self._generate_data(year=self.year, week=self.week, count=self.expected_count)
+        spread = Spread()
+        key = spread._generate_key(year=self.year, week=self.week)
+
+        # Preload half
+        preload = []
+        preload_count = self.expected_count/2
+        for i in range(preload_count):
+            spread_data = {'parent': key}
+            spread_data.update(test_data[i])
+            preload.append(SpreadModel(**spread_data))
+        ndb.put_multi(preload)
+
+        data = spread._find_existing_entries(key, test_data)
+        self.assertEqual(len(data), preload_count)
+
+        for game in preload:
+            self.assertTrue(game.game_id in data)
+
+    def test_update_model(self):
+        generated_data = self._generate_data(year=self.year, week=self.week, count=1)
+        test_data = generated_data[0]
+
+        model = SpreadModel(**test_data)
+        test_data['game_line'] += randint(1, 100)
+
+        spread = Spread()
+        result = spread._update_model(model, test_data)
+        self.assertEqual(result.to_dict(), test_data)
+
+    def test_save_same(self):
+        expected_count = 1
+        generated_data = self._generate_data(year=self.year, week=self.week, count=expected_count)
+
+        spread = Spread()
+        count = spread.save(year=self.year, week=self.week, data=generated_data)
+
+        generated_data[0]['game_line'] += 13
+        count = spread.save(year=self.year, week=self.week, data=generated_data)
+
+        # Check datastore
+        ancestor_key = spread._generate_key(year=self.year, week=self.week)
+        data = SpreadModel().query(ancestor=ancestor_key).fetch(expected_count+1)
+        self.assertEqual(len(data), expected_count)
+
+        for index in range(expected_count):
+            expected_game = generated_data[index]
+            game = data[index].to_dict()
+            self.assertEqual(game, expected_game)

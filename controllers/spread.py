@@ -18,10 +18,10 @@ class SpreadHandler(webapp2.RequestHandler):
         self.response.headers['Access-Control-Allow-Origin'] = '*'
         self.response.write(json.dumps(result))
 
-    def post(self, year, week):
+    def put(self, year, week):
         year = int(year)
         week = int(week)
-        param = self.request.POST['spread']
+        param = self.request.POST['spread']     # webapp2 treats POST body the same for PUT
         spread_data = json.loads(param)
 
         spread = Spread()
