@@ -9,7 +9,7 @@ import main
 from models.datastore.spread_ds import SpreadModel
 from models.spread import Spread
 
-class TestSpreadsHandler(unittest.TestCase):
+class TestSpreadHandler(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
         self.testbed = testbed.Testbed()
@@ -68,26 +68,3 @@ class TestSpreadsHandler(unittest.TestCase):
         # Check datastore
         data = SpreadModel.query(SpreadModel.game_id == game_id).fetch(1)
         self.assertEqual(data[0].to_dict(), test_data)
-
-    @unittest.skip('template')
-    def test_save_single_by_week(self):
-        year = 2014
-        week = randint(1, 17)
-        count = 1
-        endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(year, week)
-        test_data = self._random_spread_data(year=year, week=week, count=count)
-        post_body = {
-            'spread': json.dumps(test_data)
-        }
-
-        response = self.app.put(endpoint, post_body)
-        self.assertEqual(response.status_int, 201)
-
-        # Check datastore
-        key = Spread()._generate_key(year=year, week=week)
-        data = SpreadModel.query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
-        self.assertEqual(len(data), count)
-
-        for index, expected_game in enumerate(test_data):
-            game = data[index]
-            self.assertEqual(game.to_dict(), expected_game)
