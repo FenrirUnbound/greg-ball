@@ -68,7 +68,7 @@ class TestSpread(unittest.TestCase):
         self.assertEqual(count, expected_count)
 
         # Check datastore
-        ancestor_key = SpreadModel.generate_key(year=year, week=week)
+        ancestor_key = spread._generate_key(year=year, week=week)
         data = SpreadModel().query(ancestor=ancestor_key).order(SpreadModel.game_id).fetch(expected_count+1)
         self.assertEqual(len(data), expected_count)
 
