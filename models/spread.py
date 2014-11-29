@@ -1,7 +1,9 @@
+from google.appengine.ext import ndb
+
 from models.datastore.spread_ds import SpreadModel
 
 class Spread(object):
-    def __init__(self, year=1990, week=99):
+    def __init__(self, year=1990):
         self._datastore = SpreadModel()
         self._year = year
 
@@ -14,12 +16,22 @@ class Spread(object):
 
         return result
 
-    def save(self, week=0, data=[]):
+    def save(self, year=None, week=0, data=[]):
+        # For backwards compatability
+        year = year or self._year
+
+        parent_key = self._generate_key(year=year, week=week)
+
         to_save = []
-
         for spread_data in data:
-            game = SpreadModel(**spread_data)
-            to_save.append(game)
+            game = {'parent': parent_key}
+            game.update(spread_data)
+            spread = SpreadModel(**game)
+            to_save.append(spread)
 
-        count = SpreadModel.save_spread(year=self._year, week=week, data=to_save)
-        return count
+        result = ndb.put_multi(entities=to_save)
+        # print result
+        return len(to_save)
+
+    def _generate_key(self, year, week):
+        return ndb.Key('year', year, 'week', week)

@@ -134,23 +134,3 @@ class TestSpread(unittest.TestCase):
             expected_game = expected_data[index]
             game = data[index].to_dict()
             self.assertEqual(game, expected_game)
-
-
-    def test_save_spread_single(self):
-        year = 2014
-        week = randint(1, 17)
-        expected_count = 1
-        expected_data = self._generate_models(year=year, week=week, count=expected_count)
-
-
-        count = SpreadModel.save_spread(year=year, week=week, data=expected_data)
-        self.assertEqual(count, expected_count)
-
-        spread_model = SpreadModel()
-        data = spread_model.fetch_spread(year=year, week=week, count=expected_count+1)
-        self.assertEqual(len(data), expected_count)
-
-        for index in range(expected_count):
-            expected_game = expected_data[index].to_dict()
-            game = data[index].to_dict()
-            self.assertEqual(game, expected_game)
