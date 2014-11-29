@@ -24,7 +24,7 @@ task :venv => ['requirements.txt', 'venv/bin/activate'] do
 end
 
 task :test => [:venv] do
-  execute_command('. venv/bin/activate; nosetests -v -s --with-gae --without-sandbox ./tests/unit ./tests/func')
+  execute_command('. venv/bin/activate; nosetests -v -s --with-gae --without-sandbox ./tests/unit ./tests/func/*')
 end
 
 task :build => [:clean, :venv, :test] do

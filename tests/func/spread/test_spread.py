@@ -1,0 +1,93 @@
+import json
+import unittest
+import webtest
+from random import randint
+
+from google.appengine.ext import testbed
+
+import main
+from models.datastore.spread_ds import SpreadModel
+from models.spread import Spread
+
+class TestSpreadsHandler(unittest.TestCase):
+    def setUp(self):
+        self.app = webtest.TestApp(main.application)
+        self.testbed = testbed.Testbed()
+        self.testbed.activate()
+        self.testbed.init_datastore_v3_stub()
+
+        self.year = 2014
+        self.week = randint(1, 17)
+
+    def tearDown(self):
+        self.testbed.deactivate()
+
+    def _prepopulate_datastore(self, year=1990, week=0):
+        parent_key = Spread()._generate_key(year=year, week=week)
+        test_data = self._random_spread_data(year=year, week=week)
+
+        spread_data = {'parent': parent_key}
+        spread_data.update(test_data)
+        SpreadModel(**spread_data).put()
+
+        return test_data
+
+    def _random_spread_data(self, year=1990, week=0):
+        data = {
+            'game_id': randint(1000, 9000),
+            'game_line': randint(39, 55) + 0.5,
+            'game_odds': randint(-7, 7) + 0.5,
+            'week': week,
+            'year': year
+        }
+        return data
+
+    def test_fetch(self):
+        test_data = self._prepopulate_datastore(year=self.year, week=self.week)
+        endpoint = '/api/v1/spread/year/{0}/week/{1}/game/{2}'.format(self.year, self.week, test_data['game_id'])
+
+        response = self.app.get(endpoint)
+        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        data = json.loads(response.body)
+        self.assertEqual(data, test_data)
+
+    def test_save(self):
+        test_data = self._random_spread_data(year=self.year, week=self.week)
+        game_id = test_data['game_id']
+        endpoint = '/api/v1/spread/year/{0}/week/{1}/game/{2}'.format(self.year, self.week, game_id)
+        post_body = {
+            'spread': json.dumps(test_data)
+        }
+
+        response = self.app.put(endpoint, post_body)
+        self.assertEqual(response.status_int, 200)
+        self.assertEqual(response.content_type, 'application/json')
+
+        # Check datastore
+        data = SpreadModel.query(SpreadModel.game_id == game_id).fetch(1)
+        self.assertEqual(data[0].to_dict(), test_data)
+
+    @unittest.skip('template')
+    def test_save_single_by_week(self):
+        year = 2014
+        week = randint(1, 17)
+        count = 1
+        endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(year, week)
+        test_data = self._random_spread_data(year=year, week=week, count=count)
+        post_body = {
+            'spread': json.dumps(test_data)
+        }
+
+        response = self.app.put(endpoint, post_body)
+        self.assertEqual(response.status_int, 201)
+
+        # Check datastore
+        key = Spread()._generate_key(year=year, week=week)
+        data = SpreadModel.query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
+        self.assertEqual(len(data), count)
+
+        for index, expected_game in enumerate(test_data):
+            game = data[index]
+            self.assertEqual(game.to_dict(), expected_game)
