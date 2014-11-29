@@ -24,5 +24,25 @@ class SpreadModel(ndb.Model):
 
         return query.fetch(count)
 
+    @classmethod
+    def save_spread(cls, year, week, data=[]):
+        ancestor_key = cls.generate_key(year=year, week=week)
+
+        spread_data = []
+        for item in data:
+            game = item.to_dict()
+            game.update({'parent': ancestor_key})
+
+            spread_data.append(SpreadModel(**game))
+
+        result = ndb.put_multi(spread_data)
+
+        return len(spread_data)
+
+
     def _generate_key(self, year, week):
+        return ndb.Key('year', year, 'week', week)
+
+    @classmethod
+    def generate_key(cls, year, week):
         return ndb.Key('year', year, 'week', week)

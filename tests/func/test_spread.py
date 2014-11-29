@@ -14,6 +14,8 @@ class TestSpread(unittest.TestCase):
         self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
 
+        self.year = 2014
+        self.week = randint(1, 17)
 
     def tearDown(self):
         self.testbed.deactivate()
@@ -86,3 +88,44 @@ class TestSpread(unittest.TestCase):
             expected_game = test_data[index]
             self.assertEqual(game, expected_game)
 
+
+    def test_save_single_by_week(self):
+        year = 2014
+        week = randint(1, 17)
+        count = 1
+        endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(year, week)
+        test_data = self._random_spread_data(year=year, week=week, count=count)
+        post_body = {
+            'spread': json.dumps(test_data)
+        }
+
+        response = self.app.post(endpoint, post_body)
+        self.assertEqual(response.status_int, 201)
+
+        key = SpreadModel()._generate_key(year=year, week=week)
+        data = SpreadModel().query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
+        self.assertEqual(len(data), count)
+
+        for index, expected_game in enumerate(test_data):
+            game = data[index]
+            self.assertEqual(game.to_dict(), expected_game)
+
+
+    def test_save_multiple_by_week(self):
+        count = randint(2, 8)
+        endpoint = '/api/v1/spread/year/{0}/week/{1}'.format(self.year, self.week)
+        test_data = self._random_spread_data(year=self.year, week=self.week, count=count)
+        post_body = {
+            'spread': json.dumps(test_data)
+        }
+
+        response = self.app.post(endpoint, post_body)
+        self.assertEqual(response.status_int, 201)
+
+        key = SpreadModel()._generate_key(year=self.year, week=self.week)
+        data = SpreadModel().query(ancestor=key).order(SpreadModel.game_id).fetch(count+1)
+        self.assertEqual(len(data), count)
+
+        for index, expected_game in enumerate(test_data):
+            game = data[index]
+            self.assertEqual(game.to_dict(), expected_game)

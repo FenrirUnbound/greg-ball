@@ -30,6 +30,17 @@ class TestSpread(unittest.TestCase):
 
         return result
 
+    def _generate_models(self, year=2014, week=0, count=1):
+        test_data = self._generate_data(year=year, week=week, count=count)
+
+        result = []
+        for game in test_data:
+            spread = SpreadModel(**game)
+            result.append(spread)
+
+        return result
+
+
     def _prepopulate_datastore(self, year=2014, week=0, count=1):
         ancestor_key = ndb.Key('year', year, 'week', week)
         data = self._generate_data(year=year, week=week, count=count)
@@ -121,5 +132,25 @@ class TestSpread(unittest.TestCase):
 
         for index in range(expected_count):
             expected_game = expected_data[index]
+            game = data[index].to_dict()
+            self.assertEqual(game, expected_game)
+
+
+    def test_save_spread_single(self):
+        year = 2014
+        week = randint(1, 17)
+        expected_count = 1
+        expected_data = self._generate_models(year=year, week=week, count=expected_count)
+
+
+        count = SpreadModel.save_spread(year=year, week=week, data=expected_data)
+        self.assertEqual(count, expected_count)
+
+        spread_model = SpreadModel()
+        data = spread_model.fetch_spread(year=year, week=week, count=expected_count+1)
+        self.assertEqual(len(data), expected_count)
+
+        for index in range(expected_count):
+            expected_game = expected_data[index].to_dict()
             game = data[index].to_dict()
             self.assertEqual(game, expected_game)
