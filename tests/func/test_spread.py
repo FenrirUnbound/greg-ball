@@ -101,7 +101,7 @@ class TestSpread(unittest.TestCase):
             'spread': json.dumps(test_data)
         }
 
-        response = self.app.post(endpoint, post_body)
+        response = self.app.put(endpoint, post_body)
         self.assertEqual(response.status_int, 201)
 
         # Check datastore
@@ -122,7 +122,7 @@ class TestSpread(unittest.TestCase):
             'spread': json.dumps(test_data)
         }
 
-        response = self.app.post(endpoint, post_body)
+        response = self.app.put(endpoint, post_body)
         self.assertEqual(response.status_int, 201)
 
         # Check datastore
