@@ -12,8 +12,10 @@ class ScoreModel(ndb.Model):
                 Home team is favorited; positive numbers ALWAYS infer Away
                 team is favorite
     """
+    away_name = ndb.StringProperty()
     away_score = ndb.IntegerProperty(required=True)
     game_id = ndb.IntegerProperty(required=True)
+    home_name = ndb.StringProperty()
     home_score = ndb.IntegerProperty(required=True)
     week = ndb.IntegerProperty(required=True)
     year = ndb.IntegerProperty(required=True)

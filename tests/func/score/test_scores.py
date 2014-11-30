@@ -12,7 +12,7 @@ from google.appengine.ext import testbed
 
 
 import main
-from models.datastore.score_ds import ScoreModel, ScoreParent
+from models.datastore.score_ds import ScoreModel
 
 class TestScoresHandler(unittest.TestCase):
     def setUp(self):
