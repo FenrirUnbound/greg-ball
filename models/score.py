@@ -4,7 +4,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 
 from models.datastore.score_ds import ScoreModel
-from models.lib.score_formatter import ScoreFormatter
+from models.helper.score_formatter import ScoreFormatter
 
 class Score(object):
     def __init__(self):
