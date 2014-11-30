@@ -8,6 +8,7 @@ from google.appengine.ext import testbed
 
 import main
 from models.datastore.score_ds import ScoreModel
+from models.score import Score
 
 class TestScoreHandler(unittest.TestCase):
     def setUp(self):
@@ -25,7 +26,7 @@ class TestScoreHandler(unittest.TestCase):
 
     def generate_score_data(self, year=1990, week=0):
         test_data = self._random_test_data(year=year, week=week)
-        key = ndb.Key('year', year, 'week', week, 'ScoreModel', test_data['game_id'])
+        key = Score()._generate_key(game_id=test_data['game_id'], week=week, year=year)
 
         data = {'key': key}
         data.update(test_data)
@@ -35,8 +36,10 @@ class TestScoreHandler(unittest.TestCase):
 
     def _random_test_data(self, year=1990, week=0):
         data = {
+            'away_name': None,
             'away_score': randint(0, 99),
             'game_id': randint(1000, 9000),
+            'home_name': None,
             'home_score': randint(0, 99),
             'week': week,
             'year': year
