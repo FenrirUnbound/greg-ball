@@ -1,4 +1,4 @@
-from controllers import status, spread
+from controllers import score, status, spread
 import webapp2
 from webapp2_extras import routes
 
@@ -11,6 +11,7 @@ application = webapp2.WSGIApplication([
     routes.PathPrefixRoute('/api/v1', [
         webapp2.Route('/status', status.Status),
         webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>', spread.SpreadsHandler),
-        webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>/game/<game:\d+>', spread.SpreadHandler)
+        webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>/game/<game:\d+>', spread.SpreadHandler),
+        webapp2.Route('/score/year/<year:\d+>/week/<week:\d+>/game/<game:\d+>', score.ScoreHandler)
     ])
 ], debug=True)
