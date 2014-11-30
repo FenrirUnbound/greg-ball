@@ -70,3 +70,27 @@ class TestScoreHandler(unittest.TestCase):
         data = ScoreModel.query(ScoreModel.game_id == game_id).fetch(2)
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0].to_dict(), test_data)
+
+    def test_save_same_game_performs_update(self):
+        test_data = self._random_test_data(year=self.year, week=self.week)
+        game_id = test_data['game_id']
+        endpoint = '/api/v1/score/year/{0}/week/{1}/game/{2}'.format(self.year, self.week, game_id)
+        post_data = {
+            'game': json.dumps(test_data)
+        }
+
+        self.app.put(endpoint, post_data)
+
+        # update data
+        test_data['home_score'] += 14
+        post_data = {
+            'game': json.dumps(test_data)
+        }
+
+        response = self.app.put(endpoint, post_data)
+        self.assertEqual(response.status_int, 200)
+
+        # Check datastore
+        data = ScoreModel.query(ScoreModel.game_id == game_id).fetch(2)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0].to_dict(), test_data)
