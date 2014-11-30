@@ -32,3 +32,12 @@ class ScoreHandler(CommonScoreHandler):
         result = self._score.save(data=data, game_id=game, week=week, year=year)
 
         self._send_response()
+
+class ScoresHandler(CommonScoreHandler):
+    def get(self, year, week):
+        year = int(year)
+        week = int(week)
+
+        result = self._score.fetch(week=week, year=year)
+
+        self._send_response(result)

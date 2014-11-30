@@ -12,6 +12,7 @@ application = webapp2.WSGIApplication([
         webapp2.Route('/status', status.Status),
         webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>', spread.SpreadsHandler),
         webapp2.Route('/spread/year/<year:\d+>/week/<week:\d+>/game/<game:\d+>', spread.SpreadHandler),
+        webapp2.Route('/score/year/<year:\d+>/week/<week:\d+>', score.ScoresHandler),
         webapp2.Route('/score/year/<year:\d+>/week/<week:\d+>/game/<game:\d+>', score.ScoreHandler)
     ])
 ], debug=True)
