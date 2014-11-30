@@ -181,3 +181,41 @@ class TestSpread(unittest.TestCase):
             expected_game = generated_data[index]
             game = data[index].to_dict()
             self.assertEqual(game, expected_game)
+
+    def test_fetch_by_id(self):
+        expected_count = 1
+        generated_data = self._prepopulate_datastore(year=self.year, week=self.week)
+        test_data = generated_data[0]
+
+        spread = Spread()
+        data = spread.fetch_by_id(year=self.year, week=self.week, game_id=test_data['game_id'])
+        self.assertEqual(data, test_data)
+
+    def test_save_by_id(self):
+        generated_data = self._generate_data(year=self.year, week=self.week)
+        test_data = generated_data[0]
+        game_id = test_data['game_id']
+
+        spread = Spread()
+        count = spread.save_by_id(year=self.year, week=self.week, game_id=game_id, data=test_data)
+        self.assertEqual(count, 1)
+
+        # Check datastore
+        data = SpreadModel.query(SpreadModel.game_id == game_id).fetch(1)
+        self.assertEqual(data[0].to_dict(), test_data)
+
+    def test_save_by_id_same(self):
+        generated_data = self._generate_data(year=self.year, week=self.week)
+        test_data = generated_data[0]
+        game_id = test_data['game_id']
+
+        spread = Spread()
+        spread.save_by_id(year=self.year, week=self.week, game_id=game_id, data=test_data)
+
+        test_data['game_line'] += randint(7, 14)
+        spread.save_by_id(year=self.year, week=self.week, game_id=game_id, data=test_data)
+
+        # Check datastore
+        data = SpreadModel.query(SpreadModel.game_id == game_id).fetch(2)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0].to_dict(), test_data)

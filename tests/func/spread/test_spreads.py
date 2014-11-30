@@ -9,7 +9,7 @@ import main
 from models.datastore.spread_ds import SpreadModel
 from models.spread import Spread
 
-class TestSpread(unittest.TestCase):
+class TestSpreadsHandler(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
         self.testbed = testbed.Testbed()
