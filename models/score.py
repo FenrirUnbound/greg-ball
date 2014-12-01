@@ -15,7 +15,9 @@ class Score(object):
         if game_id is not None:
             return self._fetch_game_by_id(game_id=game_id, week=week, year=year)
         else:
+            # TODO fetch from source iff current data is stale
             game_data = self._remote.fetch()
+            # TODO Save data upon fetching remote
             return game_data
 
     def save(self, data, game_id, week=0, year=0):
@@ -44,6 +46,7 @@ class _ScoreSource(object):
     def fetch(self):
         fetch_response = urlfetch.fetch(url=self.url_reg)
         response_content = self.formatter.format(fetch_response.content)
+        # TODO json.loads should be in formatter
         game_data = json.loads(response_content)
 
         result = []
