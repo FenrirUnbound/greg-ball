@@ -43,7 +43,7 @@ class _Padding(_Formatter):
         length = 0
 
         for i in range(max_iterations):
-            result = result.replace(',,', ',0,')
+            result = result.replace(',,', ',null,')
 
         return result
 
@@ -87,5 +87,4 @@ class _DictConvert(_Formatter):
             logging.error(content)
             result = {}
 
-        print result
         return result

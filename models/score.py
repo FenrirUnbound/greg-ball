@@ -58,10 +58,14 @@ class _ScoreSource(object):
     def _create_dict_from_data(self, data):
         result = {
             'away_name': data[4],
-            'away_score': int(data[5]),
+            'away_score': int(data[5]) if data[5] is not None else 0,
+            'game_clock': data[3] if data[3] is not None else '00:00',
+            'game_day': data[0],
             'game_id': int(data[10]),
+            'game_status': data[2],
+            'game_time': data[1],
             'home_name': data[6],
-            'home_score': int(data[7]),
+            'home_score': int(data[7]) if data[7] is not None else 0,
             'week': int(data[12][3:]),
             'year': int(data[13])
         }
