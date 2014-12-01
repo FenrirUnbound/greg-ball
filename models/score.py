@@ -45,9 +45,8 @@ class _ScoreSource(object):
 
     def fetch(self):
         fetch_response = urlfetch.fetch(url=self.url_reg)
-        response_content = self.formatter.format(fetch_response.content)
-        # TODO json.loads should be in formatter
-        game_data = json.loads(response_content)
+        content = self.formatter.format(fetch_response.content)
+        game_data = content
 
         result = []
         for game in game_data:
