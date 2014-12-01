@@ -1,4 +1,6 @@
 import abc
+import json
+import logging
 
 class ScoreFormatter(object):
     def __init__(self):
@@ -67,3 +69,22 @@ class _RemoveWrapper(_Formatter):
         without_suffix = content[:-1]
 
         return without_suffix.replace('{"ss":', '')
+
+class _DictConvert(_Formatter):
+    """
+    Transforms an incoming json-parseable string into a dict equivalent
+    """
+    def __init__(self, nextFormatter=None):
+        super(_DictConvert, self).__init__(nextFormatter=nextFormatter)
+
+    def _format(self, content):
+        result = {}
+
+        try:
+            result = json.loads(content)
+        except:
+            logging.error('Could not load JSON content')
+            logging.error(content)
+            result = {}
+
+        return result
