@@ -38,7 +38,11 @@ class TestScoreHandler(unittest.TestCase):
         data = {
             'away_name': None,
             'away_score': randint(0, 99),
+            'game_clock': '00:00',
+            'game_day': 'Sun',
             'game_id': randint(1000, 9000),
+            'game_status': 'Final',
+            'game_time': '{0}{1}:{2}{3}'.format(randint(0, 2), randint(0, 9), randint(0, 6), randint(0, 9)),
             'home_name': None,
             'home_score': randint(0, 99),
             'week': week,

@@ -59,7 +59,11 @@ class TestScoresHandler(unittest.TestCase):
             {
                 'away_name': 'CHI',
                 'away_score': 17,
+                'game_clock': '00:00',
+                'game_day': 'Thu',
                 'game_id': 56346,
+                'game_status': 'Final',
+                'game_time': '12:30',
                 'home_name': 'DET',
                 'home_score': 34,
                 'week': 13,
