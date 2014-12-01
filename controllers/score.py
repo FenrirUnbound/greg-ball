@@ -27,7 +27,8 @@ class ScoreHandler(CommonScoreHandler):
         year = int(year)
         week = int(week)
         game = int(game)
-        data = json.loads(self.request.POST['game'])    # TODO
+        # TODO error handling
+        data = json.loads(self.request.POST['game'])
 
         result = self._score.save(data=data, game_id=game, week=week, year=year)
 

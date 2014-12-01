@@ -80,5 +80,3 @@ class TestScoresHandler(unittest.TestCase):
         data = json.loads(response.body)
         self.assertEqual(len(data), expected_count)
         self.assertEqual(data[0], self._score_data_final()[0])
-
-        # todo check database

@@ -19,3 +19,4 @@ class ScoreModel(ndb.Model):
     home_score = ndb.IntegerProperty(required=True)
     week = ndb.IntegerProperty(required=True)
     year = ndb.IntegerProperty(required=True)
+    # TODO add other properties
