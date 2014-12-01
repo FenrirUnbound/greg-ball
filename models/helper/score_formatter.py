@@ -4,7 +4,7 @@ import logging
 
 class ScoreFormatter(object):
     def __init__(self):
-        self.formatter = _Padding(_Overtime(_RemoveWrapper()))
+        self.formatter = _Padding(_Overtime(_RemoveWrapper(_DictConvert())))
 
     def format(self, content=''):
         result = self.formatter.format(content)
@@ -60,10 +60,9 @@ class _Overtime(_Formatter):
 class _RemoveWrapper(_Formatter):
     """
     Removes the wrapper that the endpoint gives
-    This should be a terminating node
     """
     def __init__(self, nextFormatter=None):
-        super(_RemoveWrapper, self).__init__(nextFormatter=None)
+        super(_RemoveWrapper, self).__init__(nextFormatter=nextFormatter)
 
     def _format(self, content):
         without_suffix = content[:-1]
@@ -73,9 +72,10 @@ class _RemoveWrapper(_Formatter):
 class _DictConvert(_Formatter):
     """
     Transforms an incoming json-parseable string into a dict equivalent
+    This should be a terminating node
     """
     def __init__(self, nextFormatter=None):
-        super(_DictConvert, self).__init__(nextFormatter=nextFormatter)
+        super(_DictConvert, self).__init__(nextFormatter=None)
 
     def _format(self, content):
         result = {}
@@ -87,4 +87,5 @@ class _DictConvert(_Formatter):
             logging.error(content)
             result = {}
 
+        print result
         return result
