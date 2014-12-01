@@ -1,3 +1,5 @@
+import abc
+
 class ScoreFormatter(object):
     def __init__(self):
         self.formatter = _Padding(_Overtime(_RemoveWrapper()))
@@ -22,6 +24,7 @@ class _Formatter(object):
         else:
             return result
 
+    @abc.abstractmethod
     def _format(self, content):
         pass
 
