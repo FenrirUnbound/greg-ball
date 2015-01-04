@@ -2,18 +2,14 @@ import unittest
 from random import randint
 
 from google.appengine.ext import ndb
-from google.appengine.ext import testbed
 
 from models.datastore.spread_ds import SpreadModel
 
 class TestSpread(unittest.TestCase):
     def setUp(self):
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
+        self.testbed.init_memcache_stub()
         self.testbed.init_datastore_v3_stub()
 
-    def tearDown(self):
-        self.testbed.deactivate()
 
     def test_basic(self):
         year = 2014

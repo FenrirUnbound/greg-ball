@@ -2,7 +2,6 @@ from random import randint
 import unittest
 
 from google.appengine.ext import ndb
-from google.appengine.ext import testbed
 
 from models.datastore.spread_ds import SpreadModel
 from models.spread import Spread
@@ -10,16 +9,13 @@ from models.spread import Spread
 
 class TestSpread(unittest.TestCase):
     def setUp(self):
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
+        self.testbed.init_memcache_stub()
         self.testbed.init_datastore_v3_stub()
 
         self.year = 2014
         self.week = randint(1, 17)
         self.expected_count = randint(2, 16)
 
-    def tearDown(self):
-        self.testbed.deactivate()
 
     def _generate_data(self, year=2014, week=0, count=1):
         game_id = randint(1000, 9000)
