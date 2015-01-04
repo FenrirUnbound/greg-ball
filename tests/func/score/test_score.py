@@ -4,7 +4,6 @@ import webtest
 from random import randint
 
 from google.appengine.ext import ndb
-from google.appengine.ext import testbed
 
 import main
 from models.datastore.score_ds import ScoreModel
@@ -13,16 +12,11 @@ from models.score import Score
 class TestScoreHandler(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
+        self.testbed.init_datastore_v3_stub()
 
         self.year = 2014
         self.week = randint(1, 17)
-
-    def tearDown(self):
-        self.testbed.deactivate()
 
     def generate_score_data(self, year=1990, week=0):
         test_data = self._random_test_data(year=year, week=week)

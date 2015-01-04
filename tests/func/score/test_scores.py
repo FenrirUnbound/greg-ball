@@ -8,7 +8,6 @@ from random import randint
 
 from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
-from google.appengine.ext import testbed
 
 
 import main
@@ -17,17 +16,12 @@ from models.datastore.score_ds import ScoreModel
 class TestScoresHandler(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_memcache_stub()
         self.testbed.init_urlfetch_stub()
 
         self.year = 2014
         self.week = randint(1, 17)
-
-    def tearDown(self):
-        self.testbed.deactivate()
 
     def _create_mock(self, content=''):
         class UrlMock(object):

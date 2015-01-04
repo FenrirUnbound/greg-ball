@@ -3,8 +3,6 @@ import unittest
 import webtest
 from random import randint
 
-from google.appengine.ext import testbed
-
 import main
 from models.datastore.spread_ds import SpreadModel
 from models.spread import Spread
@@ -12,15 +10,11 @@ from models.spread import Spread
 class TestSpreadsHandler(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp(main.application)
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
+        self.testbed.init_memcache_stub()
         self.testbed.init_datastore_v3_stub()
 
         self.year = 2014
         self.week = randint(1, 17)
-
-    def tearDown(self):
-        self.testbed.deactivate()
 
 
     def generate_spread_data(self, year=2014, week=0, count=1):
