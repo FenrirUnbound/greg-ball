@@ -115,12 +115,14 @@ class TestScoresHandler(unittest.TestCase):
     @mock.patch('models.score.urlfetch')
     def test_fresh_fetch_postseason(self, mock_urlfetch):
         expected_count = 12
+        expected_url = 'http://www.nfl.com/liveupdate/scorestrip/postseason/scorestrip.json'
         week = 18
         endpoint = '/api/v1/score/year/{0}/week/{1}'.format(self.year, week)
         mock_urlfetch.fetch.return_value = self._create_mock(self._score_postseason())
 
         response = self.app.get(endpoint)
         self.assertEqual(response.status_int, 200)
+        mock_urlfetch.fetch.assert_called_with(url=expected_url)
 
         data = json.loads(response.body)
         self.assertEqual(len(data), expected_count)
