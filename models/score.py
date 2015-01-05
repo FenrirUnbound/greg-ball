@@ -11,12 +11,12 @@ class Score(object):
         self._remote = _ScoreSource()
         self.url_reg = 'http://www.nfl.com/liveupdate/scorestrip/scorestrip.json'
 
-    def fetch(self, game_id=None, week=0, year=0):
+    def fetch(self, year, week, game_id=None):
         if game_id is not None:
             return self._fetch_game_by_id(game_id=game_id, week=week, year=year)
         else:
             # TODO fetch from source iff current data is stale
-            game_data = self._remote.fetch()
+            game_data = self._remote.fetch(week)
             # TODO Save data upon fetching remote
             return game_data
 
@@ -39,19 +39,33 @@ class Score(object):
         return ndb.Key('year', year, 'week', week, ScoreModel, game_id)
 
 class _ScoreSource(object):
+    REG_SEASON = 17
+
     def __init__(self):
         self.url_reg = 'http://www.nfl.com/liveupdate/scorestrip/scorestrip.json'
+        self.url_post = 'http://www.nfl.com/liveupdate/scorestrip/postseason/scorestrip.json'
         self.formatter = ScoreFormatter()
 
-    def fetch(self):
-        fetch_response = urlfetch.fetch(url=self.url_reg)
+    def fetch(self, week):
+        url = ''
+
+        if week <= self.REG_SEASON:
+            url = self.url_reg
+        else:
+            url = self.url_post
+
+        fetch_response = urlfetch.fetch(url=url)
         content = self.formatter.format(fetch_response.content)
         game_data = content
 
         result = []
         for game in game_data:
-            value = self._create_dict_from_data(data=game)
-            result.append(value)
+            if week <= self.REG_SEASON:
+                value = self._create_dict_from_data(data=game)
+                result.append(value)
+            else:
+                value = self._create_dict_from_post_data(data=game)
+                result.append(value)
 
         return result
 
@@ -68,5 +82,21 @@ class _ScoreSource(object):
             'home_score': int(data[7]) if data[7] is not None else 0,
             'week': int(data[12][3:]),
             'year': int(data[13])
+        }
+        return result
+
+    def _create_dict_from_post_data(self, data):
+        result = {
+            'away_name': data[5],
+            'away_score': int(data[6]) if data[6] is not None else 0,
+            'game_clock': data[3] if data[3] is not None else '00:00',
+            'game_day': data[0],
+            'game_id': int(data[12]),
+            'game_status': data[2],
+            'game_time': data[1],
+            'home_name': data[8],
+            'home_score': int(data[9]) if data[9] is not None else 0,
+            'week': int(data[15][4:]),
+            'year': int(data[16])
         }
         return result
