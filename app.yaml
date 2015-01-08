@@ -5,5 +5,8 @@ api_version: 1
 threadsafe: false
 
 handlers:
+- url: /api/v1/cron/score/latest
+  script: main.application
+  login: admin
 - url: /api/v1/.*
   script: main.application
