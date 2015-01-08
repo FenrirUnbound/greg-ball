@@ -1,3 +1,4 @@
+import datetime
 import json
 import mock
 import unittest
@@ -54,17 +55,25 @@ class TestCronScoreHandler(unittest.TestCase):
         ]
         return result
 
+    @mock.patch('controllers.cron.Schedule')
     @mock.patch('models.scoreboard.urlfetch')
-    def test_fresh_fetch_postseason(self, mock_urlfetch):
+    def test_fresh_fetch_postseason(self, mock_urlfetch, mock_schedule):
         expected_count = 12
         expected_url = 'http://www.nfl.com/liveupdate/scorestrip/postseason/scorestrip.json'
         expected_week = 18      # Postseason data is defaulted to week 18 with "POST18" tag
+        expected_year = 2014
         endpoint = '/api/v1/cron/score/latest'
+        # Setup mocks
         mock_urlfetch.fetch.return_value = self._create_mock(self._score_postseason())
+        mock_schedule.return_value.week.return_value = expected_week
+        mock_schedule.return_value.season_year.return_value = expected_year
 
         response = self.app.post(endpoint)
         self.assertEqual(response.status_int, 201)
+        # Check mocks
         mock_urlfetch.fetch.assert_called_with(url=expected_url)
+        self.assertTrue(mock_schedule.return_value.week.called)
+        self.assertTrue(mock_schedule.return_value.season_year.called)
 
         data = json.loads(response.body)
         self.assertEqual(data, expected_count)
