@@ -1,0 +1,5 @@
+cron:
+- description: daily score update
+  url: /api/v1/cron/score/latest
+  schedule: every day of august,september,october,november,december,january 9:01
+  timezone: America/Los_Angeles
