@@ -79,3 +79,12 @@ class TestScoresHandler(unittest.TestCase):
         data = json.loads(response.body)
         self.assertEqual(len(data), len(test_data))
         self.assertEqual(data, test_data)
+
+    def test_fetch_nothing(self):
+        endpoint = '/api/v1/score/year/{0}/week/{1}'.format(self.year, self.week)
+
+        response = self.app.get(endpoint)
+        self.assertEqual(response.status_int, 200)
+
+        data = json.loads(response.body)
+        self.assertEqual(len(data), 0)
