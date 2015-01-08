@@ -68,7 +68,7 @@ class TestCronScoreHandler(unittest.TestCase):
         mock_schedule.return_value.week.return_value = expected_week
         mock_schedule.return_value.season_year.return_value = expected_year
 
-        response = self.app.post(endpoint)
+        response = self.app.get(endpoint)
         self.assertEqual(response.status_int, 201)
         # Check mocks
         mock_urlfetch.fetch.assert_called_with(url=expected_url)

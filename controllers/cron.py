@@ -11,7 +11,7 @@ class CronScoreHandler(webapp2.RequestHandler):
         self.scoreboard = Scoreboard()
         super(CronScoreHandler, self).__init__(*args, **kwargs)
 
-    def post(self):
+    def get(self):
         current_week = self.schedule.week()
         current_season = self.schedule.season_year()
         result = self.scoreboard.fetch(year=current_season, week=current_week)
