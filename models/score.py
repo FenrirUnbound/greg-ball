@@ -1,24 +1,20 @@
 import json
 
-from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 
 from models.datastore.score_ds import ScoreModel
-from models.helper.score_formatter import ScoreFormatter
 
 class Score(object):
+    MAX_GAMES = 16
+
     def __init__(self):
-        self._remote = _ScoreSource()
-        self.url_reg = 'http://www.nfl.com/liveupdate/scorestrip/scorestrip.json'
+        self.formatter = _InvalidGameFormatter(nextFormatter=_DictFormatter())
 
     def fetch(self, year, week, game_id=None):
         if game_id is not None:
             return self._fetch_game_by_id(game_id=game_id, week=week, year=year)
         else:
-            # TODO fetch from source iff current data is stale
-            game_data = self._remote.fetch(week)
-            # TODO Save data upon fetching remote
-            return game_data
+            return self._fetch_games_by_week(year=year, week=week)
 
     def save(self, data, game_id, week=0, year=0):
         key = self._generate_key(game_id=game_id, week=week, year=year)
@@ -35,68 +31,62 @@ class Score(object):
 
         return data.to_dict()
 
-    def _generate_key(self, game_id, week, year):
-        return ndb.Key('year', year, 'week', week, ScoreModel, game_id)
+    def _fetch_games_by_week(self, year, week):
+        parent_key = self._generate_key(year=year, week=week)
 
-class _ScoreSource(object):
-    REG_SEASON = 17
+        query = ScoreModel.query(ancestor=parent_key).order(ScoreModel.game_id)
+        data = query.fetch(self.MAX_GAMES)
 
-    def __init__(self):
-        self.url_reg = 'http://www.nfl.com/liveupdate/scorestrip/scorestrip.json'
-        self.url_post = 'http://www.nfl.com/liveupdate/scorestrip/postseason/scorestrip.json'
-        self.formatter = ScoreFormatter()
+        return self.formatter.format(data=data)
 
-    def fetch(self, week):
-        url = ''
-
-        if week <= self.REG_SEASON:
-            url = self.url_reg
+    def _generate_key(self, week, year, game_id=None):
+        if game_id is None:
+            return ndb.Key('year', year, 'week', week)
         else:
-            url = self.url_post
+            return ndb.Key('year', year, 'week', week, ScoreModel, game_id)
 
-        fetch_response = urlfetch.fetch(url=url)
-        content = self.formatter.format(fetch_response.content)
-        game_data = content
-
+    def _to_dict(self, score_models_data):
         result = []
-        for game in game_data:
-            if week <= self.REG_SEASON:
-                value = self._create_dict_from_data(data=game)
-                result.append(value)
-            else:
-                value = self._create_dict_from_post_data(data=game)
-                result.append(value)
+
+        for game in score_models_data:
+            result.append(game.to_dict())
 
         return result
 
-    def _create_dict_from_data(self, data):
-        result = {
-            'away_name': data[4],
-            'away_score': int(data[5]) if data[5] is not None else 0,
-            'game_clock': data[3] if data[3] is not None else '00:00',
-            'game_day': data[0],
-            'game_id': int(data[10]),
-            'game_status': data[2],
-            'game_time': data[1],
-            'home_name': data[6],
-            'home_score': int(data[7]) if data[7] is not None else 0,
-            'week': int(data[12][3:]),
-            'year': int(data[13])
-        }
+class _Formatter(object):
+    def __init__(self, nextFormatter=None):
+        self.next = nextFormatter
+
+    def format(self, data):
+        result = self._execute_format(data=data)
+        if self.next != None:
+            return self.next.format(result)
         return result
 
-    def _create_dict_from_post_data(self, data):
-        result = {
-            'away_name': data[5],
-            'away_score': int(data[6]) if data[6] is not None else 0,
-            'game_clock': data[3] if data[3] is not None else '00:00',
-            'game_day': data[0],
-            'game_id': int(data[12]),
-            'game_status': data[2],
-            'game_time': data[1],
-            'home_name': data[8],
-            'home_score': int(data[9]) if data[9] is not None else 0,
-            'week': int(data[15][4:]),
-            'year': int(data[16])
-        }
+    def _execute_format(self, data):
+        raise NotImplementedError
+
+class _DictFormatter(_Formatter):
+    def __init__(self, nextFormatter=None):
+        super(_DictFormatter, self).__init__(nextFormatter=nextFormatter)
+
+    def _execute_format(self, data):
+        result = []
+        for game in data:
+            result.append(game.to_dict())
+        return result
+
+class _InvalidGameFormatter(_Formatter):
+    def __init__(self, nextFormatter=None):
+        super(_InvalidGameFormatter, self).__init__(nextFormatter=nextFormatter)
+
+    def _execute_format(self, data):
+        result = []
+        for game in data:
+            if hasattr(game, 'game_id'):
+                if game.game_id > 0:
+                    result.append(game)
+            elif game['game_id'] > 0:
+                result.append(game)
+
         return result
