@@ -1,14 +1,12 @@
 from __future__ import unicode_literals
 
+
 import json
-import mock
 import unittest
 import webtest
 from random import randint
 
-from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
-
 
 import main
 from models.datastore.score_ds import ScoreModel

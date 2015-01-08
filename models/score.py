@@ -1,10 +1,8 @@
 import json
 
-from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 
 from models.datastore.score_ds import ScoreModel
-from models.helper.score_formatter import ScoreFormatter
 
 class Score(object):
     MAX_GAMES = 16
